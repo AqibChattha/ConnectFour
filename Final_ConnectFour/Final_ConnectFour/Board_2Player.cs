@@ -30,7 +30,18 @@ namespace Final_ConnectFour
             player.setPlayerTurn(1);
             turns = 1;
             refreshSidebar();
+            lbl_winner.Visible = false;
+
+            // this hides the coordinates in-game since they are not needed for the player
+            foreach (var button in panel_gamePanel.Controls.OfType<Button>())
+            {
+                button.Tag = button.Text;
+                Console.WriteLine(button.Tag);
+                button.Text = "";
+            }
+            label1.Hide();
             
+
         }
 
         private void Board_2Player_Load(object sender, EventArgs e)
@@ -63,6 +74,7 @@ namespace Final_ConnectFour
             lbl_turnNum.Text = "Turn " + turns;
         }
 
+        
         private bool checkWin(int p)
         {
             // vertical check
@@ -135,7 +147,7 @@ namespace Final_ConnectFour
             if (sender is Button)
             {
                 Button btn = (Button)sender;
-                string txt = btn.Text;
+                string txt = btn.Tag.ToString();
 
 
                 int col = int.Parse(txt.Substring(0, 1));
@@ -209,14 +221,32 @@ namespace Final_ConnectFour
                 refreshSidebar();
                 if(checkWin(1))
                 {
-                    Console.WriteLine("player 1 winner");
+                    winner(1);
                 }
                 else if(checkWin(2))
                 {
-                    Console.WriteLine("player 2 winner");
+                    winner(2);
                 }
 
             }
+        }
+
+        private void winner(int playerWinner)
+        {
+            panel_gamePanel.Enabled = false;
+            lbl_winner.Text = "Player " + playerWinner + " Wins!";
+            lbl_winner.Visible = true;
+            lbl_p2Turn.ForeColor = Color.Gray;
+            lbl_p2Turn.Font = new Font(lbl_p1Turn.Font, FontStyle.Regular);
+            lbl_p1Turn.ForeColor = Color.Gray;
+            lbl_p1Turn.Font = new Font(lbl_p1Turn.Font, FontStyle.Regular);
+
+            Stats stats = new Stats();
+            stats.Deserialize();
+            stats.gamesPlayedCount++;
+            stats.playerWinCount++;
+            stats.Serialize();
+
         }
 
         private void form_close(object sender, FormClosedEventArgs e)
@@ -253,6 +283,9 @@ namespace Final_ConnectFour
             }
         }
 
-
+        private void button1_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
     }
 }
