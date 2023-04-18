@@ -74,7 +74,24 @@ namespace Final_ConnectFour
             lbl_turnNum.Text = "Turn " + turns;
         }
 
-        
+        // if all cells contain a player token and there is no winner the game is a draw
+        private bool isGameDraw()
+        {
+
+            for (int col = 0; col < 7; col++)
+            {
+                for (int row = 0; row < 6; row++)
+                {
+                    // if even a single cell has no player token the board is not yet full.
+                    if(board.getCell(col, row).getToken() == 0)
+                    {
+                        return false;
+                    }
+                    
+                }
+            }
+            return true;
+        }
         private bool checkWin(int p)
         {
             // vertical check
@@ -87,16 +104,18 @@ namespace Final_ConnectFour
                     {
                         Console.WriteLine("token found: " + c + ", " + r);
                         count++;
+                        Console.WriteLine("count: " + count);
+                        if (count == 4)
+                        {
+                            return true;
+                        }
                     }
                     else
                     {
                         count = 0;
                     }
                 }
-                if(count == 4)
-                {
-                    return true;
-                }
+                
             }
 
             // horizontal check
@@ -122,22 +141,29 @@ namespace Final_ConnectFour
             }
 
             // diagonal check
-            for (int r = 0; r < 3; r++)
-            {
-                for (int c = 0; c < 7; c++)
+                for (int r = 0; r < 3; r++)
                 {
-                    if (board.getCell(c, r)?.getToken() == p && board.getCell(c + 1, r + 1)?.getToken() == p &&
-                        board.getCell(c + 2, r + 2)?.getToken() == p && board.getCell(c + 3, r + 3)?.getToken() == p)
+                    for (int c = 0; c < 7; c++)
                     {
-                        return true;
-                    }
-                    if (board.getCell(c, r + 3)?.getToken() == p && board.getCell(c + 1, r + 2)?.getToken() == p &&
-                        board.getCell(c + 2, r + 1)?.getToken() == p && board.getCell(c + 3, r)?.getToken() == p)
-                    {
-                        return true;
+
+
+                            if (board.getCell(c, r).getToken() == p && board.getCell(c + 1, r + 1)?.getToken() == p &&
+                            board.getCell(c + 2, r + 2)?.getToken() == p && board.getCell(c + 3, r + 3)?.getToken() == p)
+                            {
+                                return true;
+                            }
+
+
+
+
+                            if (board.getCell(c, r + 3).getToken() == p && board.getCell(c + 1, r + 2)?.getToken() == p &&
+                            board.getCell(c + 2, r + 1)?.getToken() == p && board.getCell(c + 3, r)?.getToken() == p)
+                            {
+                                return true;
+                            }
+
                     }
                 }
-            }
 
             return false;
         }
@@ -226,11 +252,24 @@ namespace Final_ConnectFour
                 else if(checkWin(2))
                 {
                     winner(2);
+                } else if(isGameDraw())
+                {
+                    draw();
                 }
 
             }
         }
 
+        private void draw()
+        {
+            panel_gamePanel.Enabled = false;
+            lbl_winner.Text = "Game Draw";
+            lbl_winner.Visible = true;
+            lbl_p2Turn.ForeColor = Color.Gray;
+            lbl_p2Turn.Font = new Font(lbl_p1Turn.Font, FontStyle.Regular);
+            lbl_p1Turn.ForeColor = Color.Gray;
+            lbl_p1Turn.Font = new Font(lbl_p1Turn.Font, FontStyle.Regular);
+        }
         private void winner(int playerWinner)
         {
             panel_gamePanel.Enabled = false;
@@ -246,7 +285,6 @@ namespace Final_ConnectFour
             stats.gamesPlayedCount++;
             stats.playerWinCount++;
             stats.Serialize();
-
         }
 
         private void form_close(object sender, FormClosedEventArgs e)
