@@ -7,6 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
+using System.Media;
 
 namespace Final_ConnectFour
 {
@@ -19,6 +21,8 @@ namespace Final_ConnectFour
         int turns;
         private bool isPlayer1_turn;
 
+        Color defaultColor;
+
         public Board_2Player(MainMenu mainMenu)
         {
             InitializeComponent();
@@ -30,7 +34,6 @@ namespace Final_ConnectFour
             player.setPlayerTurn(1);
             turns = 1;
             refreshSidebar();
-            lbl_winner.Visible = false;
 
             // this hides the coordinates in-game since they are not needed for the player
             foreach (var button in panel_gamePanel.Controls.OfType<Button>())
@@ -39,9 +42,18 @@ namespace Final_ConnectFour
                 Console.WriteLine(button.Tag);
                 button.Text = "";
             }
-            label1.Hide();
-            
+            defaultColor = btn_00.BackColor;
+            foreach(var btn in panel_gamePanel.Controls.OfType<Button>())
+            {
+                string txt = btn.Tag.ToString();
 
+                int col = int.Parse(txt.Substring(0, 1));
+                int row = int.Parse(txt.Substring(3));
+
+                Cell c = board.getCell(col, row);
+                c.setButton(btn);
+            }
+            label1.Hide();
         }
 
         private void Board_2Player_Load(object sender, EventArgs e)
@@ -51,6 +63,31 @@ namespace Final_ConnectFour
         private void btn_exit_Click(object sender, EventArgs e)
         {
             Application.Exit();
+        }
+
+        private void refreshBoard()
+        {
+            foreach (var btn in panel_gamePanel.Controls.OfType<Button>())
+            {
+                string txt = btn.Tag.ToString();
+
+                int col = int.Parse(txt.Substring(0, 1));
+                int row = int.Parse(txt.Substring(3));
+
+                Cell c = board.getCell(col, row);
+                if(c.getToken() == 1)
+                {
+                    btn.BackColor = Color.Yellow;
+                }
+                else if(c.getToken() == 2)
+                {
+                    btn.BackColor = Color.Red;
+                }
+                else
+                {
+                    btn.BackColor = defaultColor;
+                }
+            }
         }
 
         private void refreshSidebar()
@@ -182,16 +219,37 @@ namespace Final_ConnectFour
 
                 Cell c = board.getCell(col, row);
                 Console.WriteLine("Clicked on " + c.getCordCol() + ", " + c.getCordRow());
+                Console.WriteLine("Button tag:"+  c.getButton().Tag.ToString());
+
+
+                //This section of code will allow a user to click on any button and have the program automatically place a disc at the lowest possible spot in the column they clicked.
+                for (int i = 0; i < 6; i++)
+                {
+                    
+                    if(board.getCell(col, i).getToken() != 0)
+                    {
+
+                    }
+                    else
+                    {
+                        c = board.getCell(col, i);
+                        btn = c.getButton();
+                        row = i;
+                    }
+                    
+                }
 
 
                 //Checks what token is present on the button (0 for nothing, 1 for player 1, 2 for player 2
                 //Then places it or places it lower
-                if(board.getCell(col, row).getToken()==0)
+                if (board.getCell(col, row).getToken()==0)
                 {
+
                     //Checks if the cell below has a filled out token or not(or is at bottom of row
                     if (row == 5 || board.getCell(col, row + 1).getToken() == 1 || board.getCell(col, row + 1).getToken() == 2 )
                     {
                         Console.WriteLine("Placing a disc.");
+                        audioClickPlay();
                         placeDisc(row, col, btn);
 
                         //Switches player after button press
@@ -245,6 +303,7 @@ namespace Final_ConnectFour
                 }
 
                 refreshSidebar();
+
                 if(checkWin(1))
                 {
                     winner(1);
@@ -257,24 +316,31 @@ namespace Final_ConnectFour
                     draw();
                 }
 
+                refreshBoard();
+
             }
         }
 
         private void draw()
         {
+            GameEndForm gef = new GameEndForm(this, "Game Draw", mm, turns, 0);
+            gef.Show();
             panel_gamePanel.Enabled = false;
-            lbl_winner.Text = "Game Draw";
-            lbl_winner.Visible = true;
             lbl_p2Turn.ForeColor = Color.Gray;
             lbl_p2Turn.Font = new Font(lbl_p1Turn.Font, FontStyle.Regular);
             lbl_p1Turn.ForeColor = Color.Gray;
             lbl_p1Turn.Font = new Font(lbl_p1Turn.Font, FontStyle.Regular);
+            Stats stats = new Stats();
+            stats.Deserialize();
+            stats.twoplayer_gameTieCount++;
+            stats.twoplayer_gamesPlayedCount++;
+            stats.Serialize();
         }
         private void winner(int playerWinner)
         {
+            GameEndForm gef = new GameEndForm(this, "Player " + playerWinner + " Wins!", mm, turns, playerWinner);
+            gef.Show();
             panel_gamePanel.Enabled = false;
-            lbl_winner.Text = "Player " + playerWinner + " Wins!";
-            lbl_winner.Visible = true;
             lbl_p2Turn.ForeColor = Color.Gray;
             lbl_p2Turn.Font = new Font(lbl_p1Turn.Font, FontStyle.Regular);
             lbl_p1Turn.ForeColor = Color.Gray;
@@ -282,8 +348,15 @@ namespace Final_ConnectFour
 
             Stats stats = new Stats();
             stats.Deserialize();
-            stats.gamesPlayedCount++;
-            stats.playerWinCount++;
+            stats.twoplayer_gamesPlayedCount++;
+            if(playerWinner == 1)
+            {
+                stats.twoplayer_playerOneWinCount++;
+            }
+            if (playerWinner == 2)
+            {
+                stats.twoplayer_playerTwoWinCount++;
+            }
             stats.Serialize();
         }
 
@@ -321,9 +394,63 @@ namespace Final_ConnectFour
             }
         }
 
+        private void audioClickPlay()
+        {
+            //For sound
+            Stream soundFile = Properties.Resources.token_click;
+            SoundPlayer audio = new SoundPlayer(soundFile);
+            audio.Play();
+        }
+
+
         private void button1_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void btn_mouseHover(object sender, EventArgs e)
+        {
+            if (sender is Button)
+            {
+                Button btn = (Button)sender;
+                string txt = btn.Tag.ToString();
+
+
+                int col = int.Parse(txt.Substring(0, 1));
+                int row = int.Parse(txt.Substring(3));
+
+                for(int i = 5; i >= 0; i--)
+                {
+                    if(board.getCell(col,i).getToken() == 1 || board.getCell(col,i).getToken() == 2)
+                    {
+
+                    }
+                    else
+                    {
+                        btn = board.getCell(col, i).getButton();
+                        if (player.getPlayerTurn() == 1)
+                        {
+                            btn.BackColor = Color.LightYellow;
+                        }
+                        else if (player.getPlayerTurn() == 2)
+                        {
+                            btn.BackColor = Color.PaleVioletRed;
+                        }
+                        break;
+                    }
+                }
+
+            }
+        }
+
+        private void btn_mouseLeave(object sender, EventArgs e)
+        {
+            refreshBoard();
+        }
+
+        private void panel_gamePanel_Paint(object sender, PaintEventArgs e)
+        {
+
         }
     }
 }

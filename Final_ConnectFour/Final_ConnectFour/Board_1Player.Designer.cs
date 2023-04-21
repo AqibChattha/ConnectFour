@@ -1,6 +1,6 @@
 ﻿namespace Final_ConnectFour
 {
-    partial class GameScreen
+    partial class Board_1Player
     {
         /// <summary>
         /// Required designer variable.
@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Board_1Player));
             this.btn_exit = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
             this.lbl_p2Turn = new System.Windows.Forms.Label();
@@ -569,9 +570,11 @@
             this.Controls.Add(this.btn_02);
             this.Controls.Add(this.btn_01);
             this.Controls.Add(this.btn_00);
-            this.Margin = new System.Windows.Forms.Padding(2);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.Name = "GameScreen";
             this.Text = "Connect 4 Game Menu";
+            this.Load += new System.EventHandler(this.GameScreen_Load);
             this.panel1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
