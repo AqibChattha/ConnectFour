@@ -76,12 +76,12 @@ namespace Final_ConnectFour
 
         private void btn_returnToMenu_Click(object sender, EventArgs e)
         {
+            this.DialogResult = DialogResult.Yes;
             this.Close();
         }
 
         private void closeWin(object sender, FormClosedEventArgs e)
         {
-            mm.Show();
         }
     }
 }

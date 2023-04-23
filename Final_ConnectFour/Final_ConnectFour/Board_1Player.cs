@@ -482,7 +482,6 @@ namespace Final_ConnectFour
         private void draw()
         {
             GameEndForm gef = new GameEndForm(this, "Game Draw", mm, turns, 0);
-            gef.Show();
             panel_gamePanel.Enabled = false;
             lbl_p2Turn.ForeColor = Color.Gray;
             lbl_p2Turn.Font = new Font(lbl_p1Turn.Font, FontStyle.Regular);
@@ -493,11 +492,16 @@ namespace Final_ConnectFour
             stats.twoplayer_gameTieCount++;
             stats.twoplayer_gamesPlayedCount++;
             stats.Serialize();
+            DialogResult res = gef.ShowDialog();
+            if (res == DialogResult.Yes || res == DialogResult.Retry || res == DialogResult.Abort)
+            {
+                this.DialogResult = res;
+                this.Close();
+            }
         }
         private void winner(int playerWinner)
         {
             GameEndForm gef = new GameEndForm(this, (playerWinner == 1 ? "Player" : "Computer") + " Wins!", mm, turns, playerWinner);
-            gef.Show();
             panel_gamePanel.Enabled = false;
             lbl_p2Turn.ForeColor = Color.Gray;
             lbl_p2Turn.Font = new Font(lbl_p1Turn.Font, FontStyle.Regular);
@@ -516,11 +520,20 @@ namespace Final_ConnectFour
                 stats.oneplayer_computerWinCount++;
             }
             stats.Serialize();
+            DialogResult res = gef.ShowDialog();
+            if (res == DialogResult.Yes || res == DialogResult.Retry || res == DialogResult.Abort)
+            {
+                this.DialogResult = res;
+                this.Close();
+            }
         }
 
         private void form_close(object sender, FormClosedEventArgs e)
         {
-            mm.Show();
+            if (this.DialogResult != DialogResult.Yes && this.DialogResult != DialogResult.Retry)
+            {
+                this.DialogResult = DialogResult.Abort;
+            }
         }
 
         //public bool columnFull(int col)
@@ -569,6 +582,7 @@ namespace Final_ConnectFour
 
         private void button1_Click(object sender, EventArgs e)
         {
+            this.DialogResult = DialogResult.Yes;
             this.Close();
         }
 

@@ -120,7 +120,7 @@
             this.panel_gameEnd.Controls.Add(this.lbl_totalTurns);
             this.panel_gameEnd.Controls.Add(this.lbl_winner);
             this.panel_gameEnd.Location = new System.Drawing.Point(11, 11);
-            this.panel_gameEnd.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.panel_gameEnd.Margin = new System.Windows.Forms.Padding(2);
             this.panel_gameEnd.Name = "panel_gameEnd";
             this.panel_gameEnd.Size = new System.Drawing.Size(374, 277);
             this.panel_gameEnd.TabIndex = 15;
@@ -197,6 +197,7 @@
             this.Name = "GameEndForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "GameEndForm";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.GameEndForm_FormClosing);
             this.Load += new System.EventHandler(this.GameEndForm_Load);
             this.panel_gameEnd.ResumeLayout(false);
             this.panel_gameEnd.PerformLayout();
