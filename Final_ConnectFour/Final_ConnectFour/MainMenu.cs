@@ -33,9 +33,9 @@ namespace Final_ConnectFour
         private void btn_startSnglPlyr_Click(object sender, EventArgs e)
         {
             Board_1Player board = new Board_1Player(this);
-			board.Show();
-			this.Hide();
-		}
+            board.Show();
+            this.Hide();
+        }
 
         private void btn_startTwoPlyr_Click(object sender, EventArgs e)
         {
